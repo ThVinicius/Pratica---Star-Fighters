@@ -1,23 +1,8 @@
 import axios from 'axios'
 
 async function battle(firstUser: string, secondUser: string) {
-  const URL = `http://api.github.com/users`
-
-  const first = await axios.get(`${URL}/${firstUser}/repos`)
-
-  let firstCount: number = 0
-  // @ts-expect-error
-  for (let i = 0; i < first.length; i++) {
-    firstCount += first[i].stargazers_count
-  }
-
-  const second = await axios.get(`${URL}/${secondUser}/repos`)
-
-  let secondCount: number = 0
-  // @ts-expect-error
-  for (const item of second) {
-    secondCount += item.stargazers_count
-  }
+  const firstCount = await getGitHubUser(firstUser)
+  const secondCount = await getGitHubUser(secondUser)
 
   let result: {}
   if (firstCount > secondCount) result = { wins: 1, losses: 0, draws: 0 }
@@ -25,6 +10,19 @@ async function battle(firstUser: string, secondUser: string) {
   else if (firstCount === secondCount) result = { wins: 0, losses: 0, draws: 1 }
 
   return result
+}
+
+async function getGitHubUser(user: string) {
+  const URL = `http://api.github.com/users`
+
+  const { data } = await axios.get(`${URL}/${user}/repos`)
+
+  let count: number = 0
+  for (const item of data) {
+    count += item.stargazers_count
+  }
+
+  return count
 }
 
 export default { battle }
