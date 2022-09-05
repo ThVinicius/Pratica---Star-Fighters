@@ -1,13 +1,23 @@
 import { Request, Response } from 'express'
-import fightersService from '../services/fightersService.js'
+import fightersService from '../services/fightersService'
 
 export async function battle(req: Request, res: Response) {
   const { firstUser, secondUser }: { firstUser: string; secondUser: string } =
     req.body
 
-  const teste = await fightersService.battle(firstUser, secondUser)
+  const {
+    firstUser: first,
+    secondUser: second,
+    return: toSend
+  } = await fightersService.battle(firstUser, secondUser)
 
-  console.log(teste)
+  await fightersService.insertOrUpdate(first, second)
 
-  return res.sendStatus(200)
+  return res.status(200).send(toSend)
+}
+
+export async function ranking(req: Request, res: Response) {
+  const { rows: fighters } = await fightersService.getRanking()
+
+  return res.status(200).send({ fighters })
 }
